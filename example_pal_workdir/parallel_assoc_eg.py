@@ -10,7 +10,7 @@ out_root = 'output/eg'
 pick_dir = 'output/eg/picks'
 sta_file = 'input/example_pal_format1.sta'
 
-# divide by time
+# divide the data into groups according to date information
 start_date, end_date = [UTCDateTime(date) for date in time_range.split('-')]
 dt = (end_date - start_date) / num_workers
 for proc_idx in range(num_workers):
