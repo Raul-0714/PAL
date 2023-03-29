@@ -12,27 +12,33 @@ import warnings
 warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str,
+    def get_arguments_from_command_line():
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--data_dir', type=str,
                         default='/data2/ZSY_SAC')
-    parser.add_argument('--time_range', type=str,
+        parser.add_argument('--time_range', type=str,
                         default='20171003-20171004')
-    parser.add_argument('--sta_file', type=str,
+        parser.add_argument('--sta_file', type=str,
                         default='input/station.dat')
-    parser.add_argument('--out_ctlg', type=str,
+        parser.add_argument('--out_ctlg', type=str,
                         default='./output/tmp.ctlg')
-    parser.add_argument('--out_pha', type=str,
+        parser.add_argument('--out_pha', type=str,
                         default='./output/tmp.pha')
-    parser.add_argument('--out_pick_dir', type=str,
+        parser.add_argument('--out_pick_dir', type=str,
                         default='./output/picks')
-    args = parser.parse_args()
+        args = parser.parse_args()
+        return args
+    
+
+    arguments = get_arguments_from_command_line()
 
 
 # PAL config
 cfg = config.Config()
 get_data_dict = cfg.get_data_dict
 read_data = cfg.read_data
-sta_dict = cfg.get_sta_dict(args.sta_file)
+sta_dict = cfg.get_sta_dict(arguments.sta_file)
 picker = picker_pal.STA_LTA_Kurtosis(\
     win_sta = cfg.win_sta,
     win_lta = cfg.win_lta,
@@ -56,15 +62,15 @@ associator = associator_pal.TS_Assoc(\
     ot_dev = cfg.ot_dev,
     max_res = cfg.max_res,
     vp = cfg.vp)
-out_root = os.path.split(args.out_ctlg)[0]
+out_root = os.path.split(arguments.out_ctlg)[0]
 if not os.path.exists(out_root): os.makedirs(out_root)
-if not os.path.exists(args.out_pick_dir): os.makedirs(args.out_pick_dir)
-out_ctlg = open(args.out_ctlg,'w')
-out_pha = open(args.out_pha,'w')
+if not os.path.exists(arguments.out_pick_dir): os.makedirs(arguments.out_pick_dir)
+out_ctlg = open(arguments.out_ctlg,'w')
+out_pha = open(arguments.out_pha,'w')
 
 
 def get_time_range():
-    return [UTCDateTime(date) for date in args.time_range.split('-')]
+    return [UTCDateTime(date) for date in arguments.time_range.split('-')]
 
 
 start_date, end_date = get_time_range()
@@ -82,12 +88,12 @@ num_days = (end_date.date - start_date.date).days
 for day_idx in range(num_days):
     # get data paths
     date = start_date + day_idx*86400
-    data_dict = get_data_dict(date, args.data_dir)
+    data_dict = get_data_dict(date, arguments.data_dir)
     todel = [net_sta for net_sta in data_dict if net_sta not in sta_dict]
     for net_sta in todel: data_dict.pop(net_sta)
     if data_dict=={}: continue
     # 1. phase picking: waveform --> picks
-    fpick_path = os.path.join(args.out_pick_dir, str(date.date)+'.pick')
+    fpick_path = os.path.join(arguments.out_pick_dir, str(date.date)+'.pick')
     out_pick = open(fpick_path,'w')
     for i, st_paths in enumerate(data_dict.values()):
         print('-'*40)
