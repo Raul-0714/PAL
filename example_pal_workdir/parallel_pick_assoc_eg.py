@@ -1,6 +1,6 @@
 import os, shutil
 from obspy import UTCDateTime
-# create a time_range class with start_date and end_date along with functions that can access the data
+
 
 class TimeRange:
     def __init__(self, time_range_inString):
@@ -16,13 +16,20 @@ class TimeRange:
 
 # parallel params
 pal_dir = '/home/zhouyj/software/PAL'
-#shutil.copyfile('config_eg.py', os.path.join(pal_dir, 'config.py'))
+
+
+def copy_config_file(pal_directory):
+    shutil.copyfile('config_eg.py', os.path.join(pal_directory, 'config.py'))
+
+
+copy_config_file(pal_dir)
 data_dir = '/data/Example_data'
 time_range = TimeRange('20190704-20190707')
 sta_file = 'input/example_pal_format1.sta'
 num_workers = 3
 out_root = 'output/eg'
 out_pick_dir = 'output/eg/picks'
+work_in_background = False
 
 
 def split_timeRange_into_subRange(time_range, num_workers):
@@ -79,22 +86,12 @@ def generate_command(time_range, output_dir):
         --time_range={} --data_dir={} --sta_file={} \
         --out_pick_dir={} --out_ctlg={} --out_pha={}" \
         .format(pal_dir, time_range, data_dir, sta_file, out_pick_dir, output_dir[1], output_dir[0])
+    if work_in_background:
+        command += ' &'
 
     return command
 
 
 assign_work_to_workers(sub_time_ranges, num_workers)
 
-
-"""for worker_id in range(num_workers):
-    t0 = ''.join(str((time_range.get_start_date() + worker_id*time_range_for_each_worker).date).split('-'))
-    t1 = ''.join(str((time_range.get_start_date() + (worker_id+1)*time_range_for_each_worker).date).split('-'))
-    time_range_inString = '{}-{}'.format(t0, t1)
-    print(time_range_inString)
-    out_pha = '{}/phase_{}.dat'.format(out_root, time_range_inString)
-    out_ctlg = '{}/catalog_{}.dat'.format(out_root, time_range_inString)
-    os.system("python {}/run_pick_assoc.py \
-        --time_range={} --data_dir={} --sta_file={} \
-        --out_pick_dir={} --out_ctlg={} --out_pha={} & " \
-        .format(pal_dir, time_range_inString, data_dir, sta_file, out_pick_dir, out_ctlg, out_pha)) """
     

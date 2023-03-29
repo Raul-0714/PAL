@@ -62,10 +62,21 @@ if not os.path.exists(args.out_pick_dir): os.makedirs(args.out_pick_dir)
 out_ctlg = open(args.out_ctlg,'w')
 out_pha = open(args.out_pha,'w')
 
-# get time range
-start_date, end_date = [UTCDateTime(date) for date in args.time_range.split('-')]
-print('run pick & assoc: raw_waveform --> picks --> events')
-print('time range: {} to {}'.format(start_date.date, end_date.date))
+
+def get_time_range():
+    return [UTCDateTime(date) for date in args.time_range.split('-')]
+
+
+start_date, end_date = get_time_range()
+
+
+def print_time_range():
+    print('run pick & assoc: raw_waveform --> picks --> events')
+    print('time range: {} to {}'.format(start_date.date, end_date.date))
+
+
+print_time_range()
+
 # for all days
 num_days = (end_date.date - start_date.date).days
 for day_idx in range(num_days):
