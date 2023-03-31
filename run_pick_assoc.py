@@ -96,8 +96,8 @@ for day_x in range(num_days):
     date = get_date_of_day_x(start_date, day_x)
     
     data_dict = get_data_dict(date, arguments.data_dir)
-    todel = [net_sta for net_sta in data_dict if net_sta not in sta_dict]
-    for net_sta in todel: data_dict.pop(net_sta)
+    to_delete = [net_sta for net_sta in data_dict if net_sta not in sta_dict]
+    for net_sta in to_delete: data_dict.pop(net_sta)
     if data_dict=={}: continue
     # 1. phase picking: waveform --> picks
     fpick_path = os.path.join(arguments.out_pick_dir, str(date.date)+'.pick')
