@@ -95,9 +95,9 @@ for day_idx in range(num_days):
     # 1. phase picking: waveform --> picks
     fpick_path = os.path.join(arguments.out_pick_dir, str(date.date)+'.pick')
     out_pick = open(fpick_path,'w')
-    for i, st_paths in enumerate(data_dict.values()):
+    for i, data_filename_list in enumerate(data_dict.values()):
         print('-'*40)
-        stream = read_data(st_paths, sta_dict)
+        stream = read_data(data_filename_list, sta_dict)
         picks_i = picker.pick(stream, out_pick)
         picks = picks_i if i==0 else np.append(picks, picks_i)
     out_pick.close()

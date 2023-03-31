@@ -5,21 +5,67 @@ import numpy as np
 import obspy
 from obspy import read, UTCDateTime
 
-# get data path dict
 def get_data_dict(date, data_dir):
-    # get data paths
-    data_dict = {}
-    date_code = '{:0>4}{:0>2}{:0>2}'.format(date.year, date.month, date.day)
-    st_paths = sorted(glob.glob(os.path.join(data_dir, date_code, '*')))
-    for st_path in st_paths:
-        fname = os.path.basename(st_path)
-        net_sta = '.'.join(fname.split('.')[0:2])
-        if net_sta in data_dict: data_dict[net_sta].append(st_path)
-        else: data_dict[net_sta] = [st_path]
-    # drop bad sta
-    todel = [net_sta for net_sta in data_dict if len(data_dict[net_sta])!=3]
-    for net_sta in todel: data_dict.pop(net_sta)
+    data_wholepath_list = get_data_filename_list(date, data_dir)
+    data_dict = generate_filename_dictionary(data_wholepath_list)
+    delete_bad_station(data_dict)
+
     return data_dict
+
+    
+def get_data_filename_list(date, data_dir):
+        date_code = generate_date_pattern_YYYYMMDD(date)
+        st_paths = sorted(glob.glob(os.path.join(data_dir, date_code, '*')))
+
+        return st_paths
+
+def generate_date_pattern_YYYYMMDD(date):
+        date_pattern = '{:0>4}{:0>2}{:0>2}'.format(date.year, date.month, date.day)
+
+        return date_pattern
+
+
+def generate_filename_dictionary(filename_list):
+    def add_to_dict(net_sta):
+        if net_sta_is_in_dict(net_sta): 
+             data_dict[net_sta].append(st_path)
+        else: 
+             data_dict[net_sta] = [st_path]
+
+
+    def net_sta_is_in_dict(net_sta):
+         if net_sta in data_dict:
+              return True
+         else:
+              return False
+
+
+    data_dict = {}
+    for st_path in filename_list:
+            fname = extract_filename_from_wholepath(st_path)
+            net_sta = get_netcode_and_station_name(fname)
+            add_to_dict(net_sta)
+            
+    return data_dict
+
+
+def extract_filename_from_wholepath(wholepath):
+     fname = os.path.basename(wholepath)
+
+     return fname
+
+
+def get_netcode_and_station_name(filename):
+     net_sta = '.'.join(filename.split('.')[0:2])
+
+     return net_sta
+
+
+def delete_bad_station(data_dict):
+    to_del_key = [net_sta for net_sta in data_dict if len(data_dict[net_sta])!=3]
+    for net_sta in to_del_key: data_dict.pop(net_sta)
+
+
 
 # read stream data
 def read_data(st_paths, sta_dict):
