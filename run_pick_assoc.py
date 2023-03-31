@@ -83,11 +83,18 @@ def print_time_range():
 
 print_time_range()
 
+def get_date_of_day_x(start_date, x_days_after_start_date):
+    day_in_sec = 86400
+    date = start_date + x_days_after_start_date * day_in_sec
+
+    return date
+
 # for all days
 num_days = (end_date.date - start_date.date).days
-for day_idx in range(num_days):
+for day_x in range(num_days):
     # get data paths
-    date = start_date + day_idx*86400
+    date = get_date_of_day_x(start_date, day_x)
+    
     data_dict = get_data_dict(date, arguments.data_dir)
     todel = [net_sta for net_sta in data_dict if net_sta not in sta_dict]
     for net_sta in todel: data_dict.pop(net_sta)
@@ -103,6 +110,9 @@ for day_idx in range(num_days):
     out_pick.close()
     # 2. associate picks: picks --> event_picks & event_loc
     associator.associate(picks, out_ctlg, out_pha)
+
+
+
 
 # finish making catalog
 out_pha.close()
